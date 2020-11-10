@@ -5,14 +5,14 @@ using System.Text;
 
 namespace CDCImplementation.DataLake
 {
-    public class MockDataLake<TState, TObject> : AbstractDataLake<TState, TObject>
+    public class MockDataLake<TObject, TState> : AbstractDataLake<TObject, TState>
     {
         public override TState GetCurrentState()
         {
             throw new NotImplementedException();
         }
 
-        public override void InsertFreshRows(IEnumerable<ObjWithState<TObject>> freshRows)
+        public override void InsertFreshRowsAndUpdateState(IEnumerable<ObjWithState<TObject>> freshRows, TState newState, string sourceId)
         {
             throw new NotImplementedException();
         }

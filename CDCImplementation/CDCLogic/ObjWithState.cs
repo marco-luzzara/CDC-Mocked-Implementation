@@ -15,12 +15,5 @@ namespace CDCImplementation.CDCLogic
             this.WrappedObject = wrappedObject;
             this.State = state;
         }
-
-        public enum ObjectState
-        {
-            Inserted,
-            Updated,
-            Deleted
-        }
     }
 }
