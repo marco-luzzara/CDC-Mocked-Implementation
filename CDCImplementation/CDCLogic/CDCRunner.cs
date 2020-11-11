@@ -1,28 +1,31 @@
 ﻿using CDCImplementation.CDCLogic.Strategies;
 using CDCImplementation.DataLake;
+using CDCImplementation.DataRetrieval;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CDCImplementation.CDCLogic
 {
-    public class CDCRunner<TObject, TState>
+    public class CDCRunner
     {
-        protected AbstractDataLake<TObject, TState> dataLake;
-        protected ICDCStrategy<TState> cdcStrategy;
-
-        public CDCRunner(AbstractDataLake<TObject, TState> dataLake, ICDCStrategy<TState> cdcStrategy)
+        public CDCRunner()
         {
-            this.dataLake = dataLake;
-            this.cdcStrategy = cdcStrategy;
         }
 
-        public void StartCDC(IEnumerable<TObject> rows, string sourceId)
+        public TState StartCDC<TObject, TState>(
+            TState currentState,
+            AbstractDataLake<TObject, TState> dataLake,
+            ICDCStrategy<TState> cdcStrategy, 
+            IObjectStorage<TObject> dataSource, 
+            string sourceId,
+            string runnerId)
         {
-            var currentState = this.dataLake.GetCurrentState();
+            var rows = dataSource.GetData();
             var (freshRows, newState) = cdcStrategy.GetFreshRows(rows, currentState);
 
-            this.dataLake.InsertFreshRowsAndUpdateState(freshRows, newState, sourceId);
+            dataLake.InsertFreshRows(freshRows, sourceId, runnerId);
+            return newState;
         }
     }
 }

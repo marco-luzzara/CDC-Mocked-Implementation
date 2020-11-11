@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CDCImplementation.DataRetrieval
 {
-    public interface IObjectStorage<T> where T : new()
+    public interface IObjectStorage<T>
     {
         IEnumerable<T> GetData();
     }

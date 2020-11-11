@@ -4,8 +4,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Text;
-using System.Xml.Serialization;
+using System.Text.Json;
 
 namespace CDCImplementation.Test.CDCLogic.Strategies.DiffWhere
 {
@@ -15,7 +16,7 @@ namespace CDCImplementation.Test.CDCLogic.Strategies.DiffWhere
         [TestMethod]
         public void Serialization_EmptyDictionary()
         {
-            DiffWhereState state = new DiffWhereState(new Dictionary<string, string>());
+            //DiffWhereState state = new DiffWhereState(new Dictionary<string, string>());
         }
     }
 }

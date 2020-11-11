@@ -19,6 +19,7 @@ namespace CDCImplementation.DataGenerator
         {
             var newObj = new T();
 
+            // TODO: improve with lambda expression creating compiled delegates 
             foreach (var prop in typeof(T).GetProperties())
             {
                 if (this.generatorMapper.ContainsKey(prop))
