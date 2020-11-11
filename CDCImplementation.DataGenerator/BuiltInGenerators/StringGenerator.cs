@@ -5,34 +5,25 @@ using System.Text;
 
 namespace CDCImplementation.DataGenerator.BuiltInGenerators
 {
-    public class StringGenerator : IGenerator<string>
+    public class StringGenerator : AbstractGenerator<string>
     {
         protected Random random = null;
         protected int maxLen;
         protected Func<string> prefix;
-        protected Func<string> customGenerator = null;
         protected string charPool = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._";
 
-        protected StringGenerator()
+        protected StringGenerator() : base()
         {
         }
 
-        public string Generate()
+        protected override string BuiltInGenerate()
         {
-            if (this.customGenerator != null)
-                return customGenerator();
-
             var genString = string.Concat(Enumerable.Range(0, this.maxLen)
                 .Select(x => this.charPool[this.random.Next(charPool.Length)]));
             return prefix() + genString;
         }
 
-        object IGenerator.Generate()
-        {
-            return Generate();
-        }
-
-        public class StringGeneratorBuilder
+        public class StringGeneratorBuilder : AbstractGeneratorBuilder
         {
             protected int maxLen = 16;
             protected Func<string> prefix = () => "";
@@ -56,17 +47,9 @@ namespace CDCImplementation.DataGenerator.BuiltInGenerators
                 return this;
             }
 
-            public StringGenerator Build(Func<string> customGenerator)
+            public override AbstractGenerator<string> Build()
             {
-                var generator = InternalBuild();
-                generator.customGenerator = customGenerator;
-
-                return generator;
-            }
-
-            public StringGenerator Build()
-            {
-                var generator = InternalBuild();
+                var generator = (StringGenerator) InternalBuild();
                 generator.maxLen = this.maxLen;
                 generator.prefix = this.prefix;
                 generator.random = new Random();
@@ -74,10 +57,7 @@ namespace CDCImplementation.DataGenerator.BuiltInGenerators
                 return generator;
             }
 
-            protected StringGenerator InternalBuild()
-            {
-                return new StringGenerator();
-            }
+            protected override AbstractGenerator<string> InternalBuild() => new StringGenerator();
         }
     }
 }

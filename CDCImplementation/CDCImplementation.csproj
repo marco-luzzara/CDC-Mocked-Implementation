@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CDCImplementation.DataGenerator\CDCImplementation.DataGenerator.csproj" />
     <ProjectReference Include="..\CDCImplementation.Infrastructure\CDCImplementation.Infrastructure.csproj" />
   </ItemGroup>
 

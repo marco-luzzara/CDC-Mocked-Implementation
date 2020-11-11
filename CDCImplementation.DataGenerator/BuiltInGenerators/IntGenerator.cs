@@ -5,58 +5,41 @@ using System.Text;
 
 namespace CDCImplementation.DataGenerator.BuiltInGenerators
 {
-    public class IntGenerator : IGenerator<int>
+    public class IntGenerator : AbstractGenerator<int>
     {
         protected Random random = null;
         protected int minNumber;
         protected int maxNumber;
-        protected Func<int> customGenerator = null;
 
-        protected IntGenerator()
+        protected IntGenerator() : base()
         {
         }
 
-        public int Generate()
+        protected override int BuiltInGenerate()
         {
-            if (this.customGenerator != null)
-                return customGenerator();
-
             return random.Next(minNumber, maxNumber);
         }
 
-        object IGenerator.Generate()
-        {
-            return Generate();
-        }
-
-        public class IntGeneratorBuilder
+        public class IntGeneratorBuilder : AbstractGeneratorBuilder
         {
             protected int minNumber = int.MinValue;
             protected int maxNumber = int.MaxValue;
 
-            public IntGeneratorBuilder SetUpperBound(int maxNumber)
+            public IntGeneratorBuilder SetMax(int maxNumber)
             {
                 this.maxNumber = maxNumber;
                 return this;
             }
 
-            public IntGeneratorBuilder SetLowerBound(int minNumber)
+            public IntGeneratorBuilder SetMin(int minNumber)
             {
                 this.minNumber = minNumber;
                 return this;
             }
 
-            public IntGenerator Build(Func<int> customGenerator)
+            public override AbstractGenerator<int> Build()
             {
-                var generator = InternalBuild();
-                generator.customGenerator = customGenerator;
-
-                return generator;
-            }
-
-            public IntGenerator Build()
-            {
-                var generator = InternalBuild();
+                var generator = (IntGenerator) InternalBuild();
                 generator.minNumber = this.minNumber;
                 generator.maxNumber = this.maxNumber;
                 generator.random = new Random();
@@ -64,10 +47,7 @@ namespace CDCImplementation.DataGenerator.BuiltInGenerators
                 return generator;
             }
 
-            protected IntGenerator InternalBuild()
-            {
-                return new IntGenerator();
-            }
+            protected override AbstractGenerator<int> InternalBuild() => new IntGenerator();
         }
     }
 }

@@ -19,7 +19,7 @@ namespace CDCImplementation.DataObjects
 
         public string Value { get; set; }
 
-        public DateTimeOffset CreationTime { get; set; }
+        public int AnotherValue { get; set; }
 
         public DateTimeOffset LastChangeTime { get; set; }
 
@@ -31,7 +31,7 @@ namespace CDCImplementation.DataObjects
 
         public string GetNonKeyHash(HashAlgorithm hashAlgorithm)
         {
-            return HashUtils.ComputeAggregationHash(hashAlgorithm, this.Value, this.CreationTime, this.LastChangeTime);
+            return HashUtils.ComputeAggregationHash(hashAlgorithm, this.Value, this.AnotherValue, this.LastChangeTime);
         }
 
         public DateTimeOffset GetTimestamp()

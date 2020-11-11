@@ -6,28 +6,36 @@ using System.Reflection;
 
 namespace CDCImplementation.DataGenerator
 {
-    public class ComplexObjectGenerator<T> : IGenerator<T>
+    public class ComplexObjectGenerator<T> : AbstractGenerator<T>
         where T : new()
     {
         protected Dictionary<PropertyInfo, IGenerator> generatorMapper;
-        protected Func<T> customGenerator = null;
 
-        public T Generate()
+        protected ComplexObjectGenerator() : base()
         {
-            //var newObj = new T();
-            throw new NotImplementedException();
         }
 
-        object IGenerator.Generate()
+        protected override T BuiltInGenerate()
         {
-            return Generate();
+            var newObj = new T();
+
+            foreach (var prop in typeof(T).GetProperties())
+            {
+                if (this.generatorMapper.ContainsKey(prop))
+                {
+                    var genValue = this.generatorMapper[prop].Generate();
+                    prop.SetValue(newObj, genValue);
+                }
+            }
+
+            return newObj;
         }
 
-        public class ComplexObjectGeneratorBuilder<TBuilder> where TBuilder : T
+        public class ComplexObjectGeneratorBuilder : AbstractGeneratorBuilder
         {
             protected Dictionary<PropertyInfo, IGenerator> generatorMapper = new Dictionary<PropertyInfo, IGenerator>();
 
-            public ComplexObjectGeneratorBuilder<TBuilder> SetupPropertyGenerator(Expression<Func<T, object>> propertyAccess, IGenerator propertyGenerator)
+            public ComplexObjectGeneratorBuilder SetupPropertyGenerator(Expression<Func<T, object>> propertyAccess, IGenerator propertyGenerator)
             {
                 var propInfo = ReflectionUtils.GetPropertyInfo(propertyAccess);
                 this.generatorMapper[propInfo] = propertyGenerator;
@@ -35,26 +43,15 @@ namespace CDCImplementation.DataGenerator
                 return this;
             }
 
-            public ComplexObjectGenerator<T> Build(Func<T> customGenerator)
+            public override AbstractGenerator<T> Build()
             {
-                var generator = InternalBuild();
-                generator.customGenerator = customGenerator;
-
-                return generator;
-            }
-
-            public ComplexObjectGenerator<T> Build()
-            {
-                var generator = InternalBuild();
+                var generator = (ComplexObjectGenerator<T>) InternalBuild();
                 generator.generatorMapper = this.generatorMapper;
                 
                 return generator;
             }
 
-            protected ComplexObjectGenerator<T> InternalBuild()
-            {
-                return new ComplexObjectGenerator<T>();
-            }
+            protected override AbstractGenerator<T> InternalBuild() => new ComplexObjectGenerator<T>();
         }
     }
 }
