@@ -4,37 +4,28 @@ using CDCImplementation.DataRetrieval;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CDCImplementation.CDCLogic
 {
-    public class CDCRunnerContext<TObject, TState>
+    public class CDCRunnerContext<TObject, TState> 
+        where TState : class
+        where TObject : class
     {
-        protected AbstractDataLake<TObject, TState> dataLake;
-        protected IObjectStorage<TObject>[] dataSourcePartitions;
-        protected ICDCStrategy<TState> cdcStrategy;
+        protected readonly CDCRunnerContextConfig configs;
 
-        public string DataSourceId { get; }
-
-        public CDCRunnerContext(
-            ICDCStrategy<TState> cdcStrategy,
-            AbstractDataLake<TObject, TState> dataLake, 
-            string dataSourceId, 
-            params IObjectStorage<TObject>[] dataSourcePartitions)
+        public CDCRunnerContext(CDCRunnerContextConfig configs)
         {
-            this.cdcStrategy = cdcStrategy;
-            this.dataLake = dataLake;
-            this.dataSourcePartitions = dataSourcePartitions;
-            this.DataSourceId = dataSourceId;
+            this.configs = configs;
         }
 
         public void StartCDC()
         {
             // for move and rename pattern: clean tmp files
-            this.dataLake.InitializeCDC();
-            TState currentState = this.dataLake.GetCurrentState();
+            this.configs.DataLake.InitializeCDC(this.configs.DataSourceId);
 
             using CancellationTokenSource cts = new CancellationTokenSource();
             ParallelOptions po = new ParallelOptions
@@ -42,16 +33,20 @@ namespace CDCImplementation.CDCLogic
                 CancellationToken = cts.Token
             };
 
-            ConcurrentBag<TState> partialStates = new ConcurrentBag<TState>();
-            var cdcRunPrefix = DateTimeOffset.Now.ToString("yyyyMMdd_HHmmss");
-            Parallel.ForEach(this.dataSourcePartitions, po, (ds, pls, i) =>
+            Parallel.ForEach(this.configs.DataSourcePartitions, po, (ds, pls, i) =>
             {
                 // not implemented, but potentially runner.StartCDC tasks could be executed remotely
                 try
                 {
                     var cdcRunner = new CDCRunner();
-                    var partialState = cdcRunner.StartCDC(currentState, this.dataLake, this.cdcStrategy, ds, this.DataSourceId, $"{cdcRunPrefix}_{i}");
-                    partialStates.Add(partialState);
+                    cdcRunner.StartCDC(new CDCRunner.CDCConfig<TObject, TState>()
+                    {
+                        CdcStrategy = this.configs.CdcStrategy,
+                        DataLake = this.configs.DataLake,
+                        DataSource = ds,
+                        SourceId = this.configs.DataSourceId,
+                        PartitionId = i.ToString()
+                    });
                 }
                 catch (Exception exc)
                 {
@@ -60,11 +55,16 @@ namespace CDCImplementation.CDCLogic
                 }
             });
 
-            var newState = this.cdcStrategy.JoinPartialStates();
-            this.dataLake.SetCurrentState(newState);
-
             // rename tmp files
-            this.dataLake.CommitCDC();
+            this.configs.DataLake.CommitCDC(this.configs.DataSourceId);
+        }
+
+        public class CDCRunnerContextConfig
+        {
+            public ICDCStrategy<TState> CdcStrategy { get; set; }
+            public AbstractDataLake DataLake { get; set; }
+            public string DataSourceId { get; set; }
+            public IEnumerable<IObjectStorage<TObject>> DataSourcePartitions { get; set; }
         }
     }
 }

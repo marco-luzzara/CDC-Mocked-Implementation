@@ -6,8 +6,6 @@ namespace CDCImplementation.CDCLogic.Strategies
 {
     public interface ICDCStrategy<TState>
     {
-        (IEnumerable<ObjWithState<TObject>>, TState) GetFreshRows<TObject>(IEnumerable<TObject> rows, TState currentState);
-
-        TState JoinPartialStates(params TState[] partialStates);
+        (IEnumerable<ObjWithState<TObject>>, TState) GetFreshRows<TObject>(IEnumerable<TObject> rows, TState currentState) where TObject : class;
     }
 }

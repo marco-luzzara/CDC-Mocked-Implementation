@@ -17,7 +17,8 @@ namespace CDCImplementation.DataGenerator.BuiltInGenerators
 
         protected override int BuiltInGenerate()
         {
-            return random.Next(minNumber, maxNumber);
+            var genNum = random.Next(minNumber, maxNumber);
+            return genNum;
         }
 
         public class IntGeneratorBuilder : AbstractGeneratorBuilder

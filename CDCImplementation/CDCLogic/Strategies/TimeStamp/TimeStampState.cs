@@ -5,23 +5,15 @@ using System.Text;
 
 namespace CDCImplementation.CDCLogic.Strategies.TimeStamp
 {
-    [Serializable]
-    public class TimeStampState : ISerializable
+    [DataContract]
+    public class TimeStampState
     {
+        [DataMember(Name = "lastUpdate")]
         public DateTimeOffset LastUpdate { get; }
 
         public TimeStampState(DateTimeOffset lastUpdate)
         {
             this.LastUpdate = lastUpdate;
-        }
-
-        protected TimeStampState(SerializationInfo info, StreamingContext context)
-        {
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            throw new NotImplementedException();
         }
     }
 }

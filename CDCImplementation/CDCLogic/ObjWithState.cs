@@ -15,12 +15,13 @@ namespace CDCImplementation.CDCLogic
         public virtual ObjectState State { get; }
 
         [DataMember(Name = "ts_load")]
-        public virtual DateTimeOffset CreationTime { get; set; }
+        public virtual DateTimeOffset CreationTime { get; }
 
-        public ObjWithState(TObject wrappedObject, ObjectState state)
+        public ObjWithState(TObject wrappedObject, ObjectState state, DateTimeOffset creationTime)
         {
             this.WrappedObject = wrappedObject;
             this.State = state;
+            this.CreationTime = creationTime;
         }
     }
 

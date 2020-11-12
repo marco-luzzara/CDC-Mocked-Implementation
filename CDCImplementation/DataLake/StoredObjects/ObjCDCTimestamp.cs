@@ -12,7 +12,8 @@ namespace CDCImplementation.DataLake.StoredObjects
         [IgnoreDataMember]
         public override ObjectState State => base.State;
 
-        public ObjCDCTimestamp(T wrappedObject, ObjectState state) : base(wrappedObject, state)
+        public ObjCDCTimestamp(T wrappedObject, ObjectState state, DateTimeOffset creationTime) 
+            : base(wrappedObject, state, creationTime)
         {
         }
     }

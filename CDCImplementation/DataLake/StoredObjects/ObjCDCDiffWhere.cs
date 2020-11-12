@@ -15,7 +15,8 @@ namespace CDCImplementation.DataLake.StoredObjects
         [DataMember(Name = "hash")]
         public string NonKeyHash { get; set; }
 
-        public ObjCDCDiffWhere(T wrappedObject, ObjectState state) : base(wrappedObject, state)
+        public ObjCDCDiffWhere(T wrappedObject, ObjectState state, DateTimeOffset creationTime) 
+            : base(wrappedObject, state, creationTime)
         {
         }
     }

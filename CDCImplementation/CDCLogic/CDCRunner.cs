@@ -13,19 +13,25 @@ namespace CDCImplementation.CDCLogic
         {
         }
 
-        public TState StartCDC<TObject, TState>(
-            TState currentState,
-            AbstractDataLake<TObject, TState> dataLake,
-            ICDCStrategy<TState> cdcStrategy, 
-            IObjectStorage<TObject> dataSource, 
-            string sourceId,
-            string runnerId)
+        public void StartCDC<TObject, TState>(CDCConfig<TObject, TState> cdcConfig)
+            where TState : class
+            where TObject : class
         {
-            var rows = dataSource.GetData();
-            var (freshRows, newState) = cdcStrategy.GetFreshRows(rows, currentState);
+            var currentState = cdcConfig.DataLake.GetCurrentState<TState>(cdcConfig.SourceId, cdcConfig.PartitionId);
+            var rows = cdcConfig.DataSource.GetData();
+            var (freshRows, newState) = cdcConfig.CdcStrategy.GetFreshRows(rows, currentState);
 
-            dataLake.InsertFreshRows(freshRows, sourceId, runnerId);
-            return newState;
+            cdcConfig.DataLake.InsertFreshRows(freshRows, cdcConfig.SourceId, cdcConfig.PartitionId);
+            cdcConfig.DataLake.SetCurrentState(newState, cdcConfig.SourceId, cdcConfig.PartitionId);
+        }
+
+        public class CDCConfig<TObject, TState>
+        {
+            public AbstractDataLake DataLake { get; set; }
+            public ICDCStrategy<TState> CdcStrategy { get; set; }
+            public IObjectStorage<TObject> DataSource { get; set; }
+            public string SourceId { get; set; }
+            public string PartitionId { get; set; }
         }
     }
 }
