@@ -73,11 +73,6 @@ namespace CDCImplementation.DataLake
             File.WriteAllText(freshRowsFilePath, freshRowsFileContent);
         }
 
-        public override IEnumerable<TObject> ReadAll<TObject>(string sourceId)
-        {
-            throw new NotImplementedException();
-        }
-
         // creates a temporary sync file
         public override void SetCurrentState<TState>(TState newState, string sourceId, string partitionId)
         {
@@ -85,6 +80,25 @@ namespace CDCImplementation.DataLake
             string syncFileContent = JsonConvert.SerializeObject(newState);
 
             File.WriteAllText(syncFilePath, syncFileContent);
+        }
+
+        public override Stream Read(string sourceId, string fileName)
+        {
+            var filePath = Path.Join(BuildDataDirPath(sourceId), fileName);
+            using var fileStream = new FileStream(filePath, FileMode.Open);
+
+            return fileStream;
+        }
+
+        public override IEnumerable<string> ListDir(string sourceId)
+        {
+            var dirToList = BuildDataDirPath(sourceId);
+            var files = Directory.EnumerateFiles(dirToList, $"*.{FILE_EXTENSION}");
+
+            foreach (var file in files)
+            {
+                yield return file;
+            }
         }
 
         protected string BuildSourceIdDirPath(string sourceId)

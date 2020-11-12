@@ -1,6 +1,7 @@
 ﻿using CDCImplementation.CDCLogic;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace CDCImplementation.DataLake
@@ -18,7 +19,8 @@ namespace CDCImplementation.DataLake
 
         public abstract void InsertFreshRows<TObject>(IEnumerable<ObjWithState<TObject>> freshRows, string sourceId, string partitionId);
 
-        // TODO: change to concrete, see stream
-        public abstract IEnumerable<TObject> ReadAll<TObject>(string sourceId);
+        public abstract Stream Read(string sourceId, string filePath);
+
+        public abstract IEnumerable<string> ListDir(string sourceId);
     }
 }
